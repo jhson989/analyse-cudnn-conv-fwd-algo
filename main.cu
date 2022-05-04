@@ -17,7 +17,7 @@ int main(void) {
 
     // Input configuration
     const int BATCH_NUM=128, INPUT_C=3, INPUT_H=256, INPUT_W=256;
-    const int OUTPUT_C=3, FILTER_H=5, FILTER_W=5;
+    const int OUTPUT_C=3, FILTER_H=3, FILTER_W=3;
     const int PAD_H=0, PAD_W=0;
     const int STRIDE_H=1, STRIDE_W=1;
     const int DILATION_H=1, DILATION_W=1;
