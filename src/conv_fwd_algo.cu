@@ -50,8 +50,8 @@ void launch_conv_fwd(
                                             , /*BETA*/&beta
                                             , /*OUTPUT*/output_desc, d_output
         ) );    
-        cudaErrChk( cudaDeviceSynchronize() );
     }
+    cudaErrChk( cudaDeviceSynchronize() );
     cudaErrChk(cudaEventRecord(stop, NULL));
     cudaErrChk( cudaEventSynchronize(stop) );
 

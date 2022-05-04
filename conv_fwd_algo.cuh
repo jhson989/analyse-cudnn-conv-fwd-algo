@@ -12,7 +12,7 @@ void launch_conv_fwd(
 );
 
 // Debugging
-#define TEST_ITERATION (10)
+#define TEST_ITERATION (50)
 #define cudnnErrChk(ans) { cudnnAssert((ans), __FILE__, __LINE__); }
 #define cudaErrChk(ans) { cudaAssert((ans), __FILE__, __LINE__); }
 void cudnnAssert(cudnnStatus_t code, const char *file, int line);

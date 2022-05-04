@@ -5,7 +5,7 @@
 
 int main(void) {
 
-    cudaErrChk( cudaSetDevice(0) );
+    std::cout<<std::endl;
     cudnnHandle_t cudnn;
     cudnnErrChk( cudnnCreate(&cudnn) );
     
@@ -17,7 +17,7 @@ int main(void) {
 
     // Input configuration
     const int BATCH_NUM=128, INPUT_C=3, INPUT_H=256, INPUT_W=256;
-    const int OUTPUT_C=3, FILTER_H=3, FILTER_W=3;
+    const int OUTPUT_C=3, FILTER_H=5, FILTER_W=5;
     const int PAD_H=0, PAD_W=0;
     const int STRIDE_H=1, STRIDE_W=1;
     const int DILATION_H=1, DILATION_W=1;
@@ -68,8 +68,16 @@ int main(void) {
         /*DATATYPE*/CUDNN_DATA_FLOAT, /*LAYOUT*/CUDNN_TENSOR_NCHW, /*O_C*/OUTPUT_C, /*I_C*/INPUT_C, /*K_H*/FILTER_H, /*K_W*/FILTER_W));
 
 
-    // 0. CUDNN_CONVOLUTION_FWD_ALGO_DIRECT
-    
+    // 0. CUDNN_CONVOLUTION_FWD_ALGO_DIRECT -> Not presently supported by cuDNN
+    //launch_conv_fwd(
+    //    /*CUDNN HANDLER*/cudnn,
+    //    /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_DIRECT,
+    //    /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+    //    /*INPUT*/input_desc, d_input,
+    //    /*OUTPUT*/output_desc, d_output,
+    //    /*FILTER*/filter_desc, d_filter
+    //);   
+
     // 1. CUDNN_CONVOLUTION_FWD_ALGO_GEMM
     launch_conv_fwd(
         /*CUDNN HANDLER*/cudnn,
@@ -156,6 +164,7 @@ int main(void) {
     cudnnErrChk( cudnnDestroyFilterDescriptor (filter_desc) );
 
     cudnnErrChk( cudnnDestroy(cudnn) );
+    std::cout<<std::endl;
     return 0;       
 }
 
