@@ -1,5 +1,16 @@
 #include "../conv_fwd_algo.cuh"
 
+std::string MODE_NAME[] = {
+    "CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM",
+    "CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM",
+    "CUDNN_CONVOLUTION_FWD_ALGO_GEMM",
+    "CUDNN_CONVOLUTION_FWD_ALGO_DIRECT",
+    "CUDNN_CONVOLUTION_FWD_ALGO_FFT",
+    "CUDNN_CONVOLUTION_FWD_ALGO_FFT_TILING",
+    "CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD",
+    "CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED"
+};
+
 
 /***************************************************************
  * Debug code
@@ -22,7 +33,7 @@ void print_performance(cudaEvent_t& start, cudaEvent_t& stop, const cudnnConvolu
     float msec_total=0.0f;
     cudaErrChk( cudaEventElapsedTime(&msec_total, start, stop) );
 
-    std::cout << "MODE : " << mode << "\n";
+    std::cout << "MODE : " << MODE_NAME[(int)(mode)] << "\n";
     std::cout << " -- elapsed time : " << msec_total*1e-3 << " s\n";
     std::cout << " -- workspace size : " << memory_size*1e-9 << " GB\n";
 

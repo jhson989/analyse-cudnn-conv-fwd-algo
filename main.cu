@@ -67,12 +67,10 @@ int main(void) {
     cudnnErrChk (cudnnSetFilter4dDescriptor (filter_desc, 
         /*DATATYPE*/CUDNN_DATA_FLOAT, /*LAYOUT*/CUDNN_TENSOR_NCHW, /*O_C*/OUTPUT_C, /*I_C*/INPUT_C, /*K_H*/FILTER_H, /*K_W*/FILTER_W));
 
+
+    // 0. CUDNN_CONVOLUTION_FWD_ALGO_DIRECT
     
-    
-    /*******************************************************************************
-     * 1. CUDNN_CONVOLUTION_FWD_ALGO_GEMM
-     ********************************************************************************/ 
-    
+    // 1. CUDNN_CONVOLUTION_FWD_ALGO_GEMM
     launch_conv_fwd(
         /*CUDNN HANDLER*/cudnn,
         /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_GEMM,
@@ -82,6 +80,65 @@ int main(void) {
         /*FILTER*/filter_desc, d_filter
     );
 
+    // 2. CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
+
+    // 3. CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
+
+    // 4. CUDNN_CONVOLUTION_FWD_ALGO_FFT
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_FFT,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
+
+    // 5. CUDNN_CONVOLUTION_FWD_ALGO_FFT_TILING
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_FFT_TILING,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
+
+    // 6. CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
+
+    // 7. CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED,
+        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+        /*INPUT*/input_desc, d_input,
+        /*OUTPUT*/output_desc, d_output,
+        /*FILTER*/filter_desc, d_filter
+    );
 
 
 

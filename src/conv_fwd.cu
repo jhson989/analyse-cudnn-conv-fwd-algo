@@ -25,7 +25,7 @@ void launch_conv_fwd(
     // Specify forward algorithm
     void* d_workspace_forward;
     size_t bytes_workspace_forward;
-    cudnnErrChk( cudnnGetConvolutionForwardWorkspaceSize(cudnn, input_desc, filter_desc, conv2d_desc, output_desc, CUDNN_CONVOLUTION_FWD_ALGO_GEMM, &bytes_workspace_forward) );
+    cudnnErrChk( cudnnGetConvolutionForwardWorkspaceSize(cudnn, input_desc, filter_desc, conv2d_desc, output_desc, mode, &bytes_workspace_forward) );
     cudaErrChk( cudaMalloc(&d_workspace_forward, bytes_workspace_forward) );
 
 
