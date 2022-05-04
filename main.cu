@@ -5,9 +5,12 @@
 
 int main(void) {
 
+    cudaErrChk( cudaSetDevice(0) );
     cudnnHandle_t cudnn;
     cudnnErrChk( cudnnCreate(&cudnn) );
     
+
+
     /*******************************************************************************
      * Set input, output, filter
      ********************************************************************************/ 
@@ -41,6 +44,7 @@ int main(void) {
     cudaErrChk( cudaMemcpy(d_filter, filter.data(), sizeof(float)*INPUT_C*OUTPUT_C*FILTER_H*FILTER_W, cudaMemcpyHostToDevice) );
 
 
+    
     /*******************************************************************************
      * Describe input, output, filter
      ********************************************************************************/ 
@@ -66,10 +70,12 @@ int main(void) {
     
     
     /*******************************************************************************
-     * 1. CUDNN_CONVOLUTION_FWD_ALGO_DIRECT
+     * 1. CUDNN_CONVOLUTION_FWD_ALGO_GEMM
      ********************************************************************************/ 
     
-    launch_conv_fwd_direct(
+    launch_conv_fwd(
+        /*CUDNN HANDLER*/cudnn,
+        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_GEMM,
         /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
         /*INPUT*/input_desc, d_input,
         /*OUTPUT*/output_desc, d_output,

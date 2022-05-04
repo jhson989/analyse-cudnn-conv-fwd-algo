@@ -17,3 +17,13 @@ void cudaAssert(cudaError_t code, const char *file, int line) {
         exit(1);
     }
 }
+
+void print_performance(cudaEvent_t& start, cudaEvent_t& stop, const cudnnConvolutionFwdAlgo_t& mode, const size_t memory_size) {
+    float msec_total=0.0f;
+    cudaErrChk( cudaEventElapsedTime(&msec_total, start, stop) );
+
+    std::cout << "MODE : " << mode << "\n";
+    std::cout << " -- elapsed time : " << msec_total*1e-3 << " s\n";
+    std::cout << " -- workspace size : " << memory_size*1e-9 << " GB\n";
+
+}

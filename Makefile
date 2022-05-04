@@ -1,7 +1,7 @@
 CC = /usr/local/cuda/bin/nvcc
 EXE_NAME = conv_fwd.out
 MAIN = main.cu
-OBJS = src/debug.cu src/conv_fwd_direct.cu
+OBJS = src/debug.cu src/conv_fwd.cu
 INCS = conv_fwd_algo.cuh
 COMPILER_ARGS = -lcudnn
 
