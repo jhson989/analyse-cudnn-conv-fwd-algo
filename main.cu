@@ -3,7 +3,45 @@
 
 #include "conv_fwd_algo.cuh"
 
-int main(void) {
+void set_layer_config(
+    /*ARGUMENT*/int argc, char** argv,
+    /*INPUT*/int& BATCH_NUM, int& INPUT_C, int& INPUT_H, int& INPUT_W,
+    /*FILTER*/int& OUTPUT_C, int& FILTER_H, int& FILTER_W,
+    /*PAD*/int& PAD_H, int& PAD_W,
+    /*STRIDE*/int& STRIDE_H, int& STRIDE_W,
+    /*DILATION*/int& DILATION_H, int& DILATION_W
+) {
+
+    if (argc == 12) {
+        BATCH_NUM = std::atoi(argv[1]);
+        INPUT_C = std::atoi(argv[2]);
+        INPUT_H = std::atoi(argv[3]);
+        INPUT_W = std::atoi(argv[4]);
+        OUTPUT_C = std::atoi(argv[5]);
+        FILTER_H = std::atoi(argv[6]);
+        FILTER_W = std::atoi(argv[7]);
+        PAD_H = std::atoi(argv[8]);
+        PAD_W = std::atoi(argv[9]);
+        STRIDE_H = std::atoi(argv[10]);
+        STRIDE_W = std::atoi(argv[11]);
+        DILATION_H=1, DILATION_W=1;
+    } 
+    // Default setting
+    else {
+        BATCH_NUM=128; INPUT_C=3; INPUT_H=256; INPUT_W=256;
+        OUTPUT_C=3; FILTER_H=3; FILTER_W=3;
+        PAD_H=0; PAD_W=0;
+        STRIDE_H=1; STRIDE_W=1;
+        DILATION_H=1; DILATION_W=1;
+    }
+
+    printf("INPUT : [%d,%d,%d,%d]\n", BATCH_NUM, INPUT_C, INPUT_H, INPUT_W);
+    printf("FILTER : [%d,%d,%d,%d]\n", OUTPUT_C, INPUT_C, FILTER_H, FILTER_W);
+    printf("LAYER CONFIG : PAD[%d,%d], STRIDE[%d,%d], DILATION[%d,%d]\n", PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W);
+}
+
+
+int main(int argc, char** argv) {
 
     std::cout<<std::endl;
     cudnnHandle_t cudnn;
@@ -16,13 +54,12 @@ int main(void) {
      ********************************************************************************/ 
 
     // Input configuration
-    const int BATCH_NUM=128, INPUT_C=3, INPUT_H=256, INPUT_W=256;
-    const int OUTPUT_C=3, FILTER_H=3, FILTER_W=3;
-    const int PAD_H=0, PAD_W=0;
-    const int STRIDE_H=1, STRIDE_W=1;
-    const int DILATION_H=1, DILATION_W=1;
-    int OUTPUT_H=(INPUT_H-FILTER_H+2*PAD_H)/STRIDE_H + 1;
-    int OUTPUT_W=(INPUT_W-FILTER_W+2*PAD_W)/STRIDE_W + 1;
+    int BATCH_NUM, INPUT_C, INPUT_H, INPUT_W;
+    int OUTPUT_C, FILTER_H, FILTER_W;
+    int PAD_H, PAD_W;
+    int STRIDE_H, STRIDE_W;
+    int DILATION_H, DILATION_W;
+    set_layer_config(argc, argv, BATCH_NUM, INPUT_C, INPUT_H, INPUT_W, OUTPUT_C, FILTER_H, FILTER_W, PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W);    
 
     // Input 
     float* d_input;
@@ -32,6 +69,8 @@ int main(void) {
     cudaErrChk( cudaMemcpy(d_input, input.data(), sizeof(float)*BATCH_NUM*INPUT_C*INPUT_H*INPUT_W, cudaMemcpyHostToDevice) );
     
     // Output
+    int OUTPUT_H=(INPUT_H-FILTER_H+2*PAD_H)/STRIDE_H + 1;
+    int OUTPUT_W=(INPUT_W-FILTER_W+2*PAD_W)/STRIDE_W + 1;
     float* d_output;
     std::vector<float> output(BATCH_NUM*OUTPUT_C*OUTPUT_H*OUTPUT_W);
     cudaErrChk( cudaMalloc(&d_output, sizeof(float)*BATCH_NUM*OUTPUT_C*OUTPUT_H*OUTPUT_W) );
@@ -129,25 +168,29 @@ int main(void) {
     );
 
     // 6. CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD
-    launch_conv_fwd(
-        /*CUDNN HANDLER*/cudnn,
-        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD,
-        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
-        /*INPUT*/input_desc, d_input,
-        /*OUTPUT*/output_desc, d_output,
-        /*FILTER*/filter_desc, d_filter
-    );
+    if (FILTER_H == 3 && FILTER_W ==3) {
+        launch_conv_fwd(
+            /*CUDNN HANDLER*/cudnn,
+            /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD,
+            /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+            /*INPUT*/input_desc, d_input,
+            /*OUTPUT*/output_desc, d_output,
+            /*FILTER*/filter_desc, d_filter
+        );
+    }
+    
 
     // 7. CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED
-    launch_conv_fwd(
-        /*CUDNN HANDLER*/cudnn,
-        /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED,
-        /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
-        /*INPUT*/input_desc, d_input,
-        /*OUTPUT*/output_desc, d_output,
-        /*FILTER*/filter_desc, d_filter
-    );
-
+    if ( (FILTER_H == 3 && FILTER_W ==3) || (FILTER_H == 5 && FILTER_W ==5) ) {
+        launch_conv_fwd(
+            /*CUDNN HANDLER*/cudnn,
+            /*MODE*/CUDNN_CONVOLUTION_FWD_ALGO_WINOGRAD_NONFUSED,
+            /*LAYER CONFIG*/PAD_H, PAD_W, STRIDE_H, STRIDE_W, DILATION_H, DILATION_W,
+            /*INPUT*/input_desc, d_input,
+            /*OUTPUT*/output_desc, d_output,
+            /*FILTER*/filter_desc, d_filter
+        );
+    }
 
 
     /*******************************************************************************
