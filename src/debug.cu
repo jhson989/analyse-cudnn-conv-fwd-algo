@@ -34,6 +34,11 @@ void print_performance(cudaEvent_t& start, cudaEvent_t& stop, const cudnnConvolu
     cudaErrChk( cudaEventElapsedTime(&msec_total, start, stop) );
 
     printf("[%s]\n", MODE_NAME[(int)(mode)].c_str());
-    printf(" : %05.3f s , %f GB\n", 1.0f*msec_total/1024.0f, 1.0f*memory_size/1024.0f/1024.0f/1024.0f);
+    
+    if (memory_size == 0) {
+        printf(" : %05.3f s , zero GB\n", 1.0f*msec_total/1024.0f);
+    } else {
+        printf(" : %05.3f s , %f GB\n", 1.0f*msec_total/1024.0f, 1.0f*memory_size/1024.0f/1024.0f/1024.0f);
+    }
 
 }
